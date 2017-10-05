@@ -20,7 +20,10 @@
 
             #renderCanvas {
                 width: 100%;
-                height: 100%;
+                /*height: 100%;*/
+                height: 800px;
+                margin: 0;
+                padding: 0;
                 touch-action: none;
             }
         </style>
@@ -36,13 +39,13 @@
 
         var createScene = function () {
         
-            var goal_offset_z = 10;
+            var goal_offset_z = 28, goal_offset_y = -3.5;
             // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
         
             // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(60, 0, 0), scene);
             //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 15, -50), scene);
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 15, -50), scene);
         
             // This targets the camera to scene origin
             camera.setTarget(BABYLON.Vector3.Zero());
@@ -70,13 +73,17 @@
             // The first parameter can be used to specify which mesh to import. Here we import all meshes
             BABYLON.SceneLoader.ImportMesh("", "assets/", "goal_mesh_curve.babylon", scene, 
                     function (newMeshes, particleSystems, skeletons) {
-                    	newMeshes[0].position.z = goal_offset_z+5;
+                    	newMeshes[0].position.z = goal_offset_z+3.5;
+                    	newMeshes[0].position.y = goal_offset_y+3;
                     	//newMeshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	newMeshes[2].position.z = goal_offset_z;
+                    	newMeshes[2].position.z = goal_offset_z+2;
+                    	newMeshes[2].position.y = goal_offset_y+3.5;
                     	//newMeshes[2].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	newMeshes[3].position.z = goal_offset_z;
+                    	newMeshes[3].position.z = goal_offset_z; //goal
+                    	newMeshes[3].position.y = goal_offset_y-0.5;
                     	//newMeshes[3].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
                     	newMeshes[1].position.z = goal_offset_z;
+                    	newMeshes[1].position.y = goal_offset_y+4;
                     	//newMeshes[1].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
                     	
                     });
