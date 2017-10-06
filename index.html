@@ -94,7 +94,6 @@
             BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, function (newMeshes, particleSystems, skeletons) {
                 // Set the target of the camera to the first imported mesh
                 camera.target = newMeshes[0];
-		//player = newMeshes[0];
                 skeleton = skeletons[0];
                 newMeshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
@@ -104,10 +103,10 @@
                 //setPlyMoveanim(newMeshes[0]);
                 //console.log(skeletons[0]); //Bone_L.002 -> 15
                 //sphere.attachToBone(skeleton.bones[18], newMeshes[0]);
-		/*var player2 = player.clone("player2");
-		var player3 = player.clone("player3");
+		var player2 = player_mesh.clone("player2");
+		//var player3 = player.clone("player3");
 		player2.position = new BABYLON.Vector3(2, 0, 2);
-		player3.position = new BABYLON.Vector3(2, 0, 3);*/
+		//player3.position = new BABYLON.Vector3(2, 0, 3);*/
                 skel_anim = scene.beginAnimation(skeletons[0], 61, 80, true, 1.0);
                 //scene.beginAnimation(skeletons[0], 30, 60, true, 1.0);
              	/*scene.registerBeforeRender(function () {
