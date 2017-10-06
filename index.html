@@ -88,7 +88,7 @@
                     	
                     });
                     
-            var sphere = BABYLON.Mesh.CreateSphere("sphere", 10.0, 1.0, scene);
+            //var sphere = BABYLON.Mesh.CreateSphere("sphere", 10.0, 1.0, scene);
             //sphere.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);   
             var skeleton;          
             BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, function (newMeshes, particleSystems, skeletons) {
@@ -103,7 +103,7 @@
                 //player_mesh = newMeshes[0];
                 //setPlyMoveanim(newMeshes[0]);
                 //console.log(skeletons[0]); //Bone_L.002 -> 15
-                sphere.attachToBone(skeleton.bones[18], newMeshes[0]);
+                //sphere.attachToBone(skeleton.bones[18], newMeshes[0]);
 		/*var player2 = player.clone("player2");
 		var player3 = player.clone("player3");
 		player2.position = new BABYLON.Vector3(2, 0, 2);
