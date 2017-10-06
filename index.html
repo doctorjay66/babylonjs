@@ -104,8 +104,8 @@
                 //setPlyMoveanim(newMeshes[0]);
                 //console.log(skeletons[0]); //Bone_L.002 -> 15
                 sphere.attachToBone(skeleton.bones[18], newMeshes[0]);
-		var player2 = rabbit.clone("player2");
-		var player3 = rabbit.clone("player3");
+		var player2 = player.clone("player2");
+		var player3 = player.clone("player3");
 		player2.position = new BABYLON.Vector3(2, 0, 2);
 		player3.position = new BABYLON.Vector3(2, 0, 3);
                 skel_anim = scene.beginAnimation(skeletons[0], 61, 80, true, 1.0);
