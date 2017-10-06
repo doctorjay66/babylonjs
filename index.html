@@ -94,7 +94,7 @@
             BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, function (newMeshes, particleSystems, skeletons) {
                 // Set the target of the camera to the first imported mesh
                 camera.target = newMeshes[0];
-		player = newMeshes[0];
+		//player = newMeshes[0];
                 skeleton = skeletons[0];
                 newMeshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
