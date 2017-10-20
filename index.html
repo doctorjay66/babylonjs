@@ -26,9 +26,16 @@
                 padding: 0;
                 touch-action: none;
             }
+            
+            #btnStart {
+              position: absolute;
+              left: 10px;
+               top: 15px;
+            }
         </style>
     </head>
 <body>
+    <input type="button" id="btnStart" value="Start" onclick="startActions();" />
     <div id="canvasZone">
         <canvas id="renderCanvas"></canvas>
     </div>
@@ -267,6 +274,19 @@
             mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());            
             
           }*/
+        }
+        
+        function startActions() {
+            var act_init = action_list.filter(function(act){return act.state == INIT});            
+            for(var i=0;i<act_init.length;i++) {
+              if(act_init[i].type == 'pass') {
+                startPlyKick(act_init[i]);
+              } else if(act_init[i].type == 'run') {
+                startPlyKick(act_init[i]);
+              } else if(act_init[i].type == 'cross') {
+                startPlyCross(act_init[i]);
+              }
+            }          
         }
         
         var scene = createScene();
