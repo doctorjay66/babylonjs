@@ -23,7 +23,7 @@
             #renderCanvas {
                 width: 100%;
                 /*height: 100%;*/
-                height: 800px;
+                /*height: 800px;*/
                 margin: 0;
                 padding: 0;
                 touch-action: none;
@@ -56,7 +56,7 @@
             var scene = new BABYLON.Scene(engine);
         
             // This creates and positions a free camera (non-mesh)
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(45*upm, 10*upm, 0), scene);
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(35*upm, 40*upm, -50), scene);
             //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 15, -50), scene);
         
             // This targets the camera to scene origin
@@ -64,6 +64,9 @@
         
             // This attaches the camera to the canvas
             camera.attachControl(canvas, true);
+            
+            //camera.noRotationConstraint=true;
+            //camera.rotation.z=Math.PI/180;
         
             // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
             var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
