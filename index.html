@@ -35,20 +35,23 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
-        var player_mesh, skel_anim;
+        var player1, skel_anim_k, player2, player3, sphere, upm = 4, fps = 30;
+        var action_list = [], act_idx, INIT = 0, WAIT = 1, OVER = 2;
 
         var createScene = function () {
         
+            window.addEventListener("keydown", onKeyDown);
+            
             var goal_offset_z = 28, goal_offset_y = -3.5;
             // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
         
             // This creates and positions a free camera (non-mesh)
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(60, 0, 0), scene);
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(45*upm, 10*upm, 0), scene);
             //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 15, -50), scene);
         
             // This targets the camera to scene origin
-            camera.setTarget(BABYLON.Vector3.Zero());
+            camera.setTarget(new BABYLON.Vector3(0*upm, 0, 20*upm)/*BABYLON.Vector3.Zero()*/);
         
             // This attaches the camera to the canvas
             camera.attachControl(canvas, true);
@@ -64,88 +67,206 @@
             var material1 = new BABYLON.StandardMaterial("material1",scene);
             //material1.diffuseColor = BABYLON.Color3.Green();
             material1.diffuseTexture = new BABYLON.Texture("assets/campo_1.jpg", scene);
-        
-            // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
-            //var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
+            
+            sphere = BABYLON.Mesh.CreateSphere("sphere1", 10, 1, scene);
         
             // Move the sphere upward 1/2 its height
-            //sphere.position.y = 1;
-            // The first parameter can be used to specify which mesh to import. Here we import all meshes
-            BABYLON.SceneLoader.ImportMesh("", "assets/", "goal_mesh_curve.babylon", scene, 
-                    function (newMeshes, particleSystems, skeletons) {
-                    	newMeshes[0].position.z = goal_offset_z+3.5;
-                    	newMeshes[0].position.y = goal_offset_y+3;
-                    	//newMeshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	newMeshes[2].position.z = goal_offset_z+2;
-                    	newMeshes[2].position.y = goal_offset_y+3.5;
-                    	//newMeshes[2].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	newMeshes[3].position.z = goal_offset_z; //goal
-                    	newMeshes[3].position.y = goal_offset_y-0.5;
-                    	//newMeshes[3].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	newMeshes[1].position.z = goal_offset_z;
-                    	newMeshes[1].position.y = goal_offset_y+4;
-                    	//newMeshes[1].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-                    	
-                    });
-                    
-            //var sphere = BABYLON.Mesh.CreateSphere("sphere", 10.0, 1.0, scene);
-            //sphere.scaling = new BABYLON.Vector3(0.01, 0.01, 0.01);   
+            sphere.position = new BABYLON.Vector3(100, -4.5, 35);
+            //sphere.position.z = 0;
+            
             var skeleton;          
-            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, function (newMeshes, particleSystems, skeletons) {
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, 
+              function (newMeshes, particleSystems, skeletons) {
                 // Set the target of the camera to the first imported mesh
                 camera.target = newMeshes[0];
-                skeleton = skeletons[0];
-                newMeshes[0].rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
+                skeleton = skeletons[0];                
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
             	material2.diffuseColor = BABYLON.Color3.Blue();
                 newMeshes[0].material = material2;
-                player_mesh = newMeshes[0];
-                //setPlyMoveanim(newMeshes[0]);
-                //console.log(skeletons[0]); //Bone_L.002 -> 15
-                //sphere.attachToBone(skeleton.bones[18], newMeshes[0]);
-		var player2 = player_mesh.clone("player2");
-		//var player3 = player.clone("player3");
-		//player2.position.z = 6; //new BABYLON.Vector3(2, 0, 2);
-		//player3.position = new BABYLON.Vector3(2, 0, 3);*/
-                //skel_anim = scene.beginAnimation(skeletons[0], 61, 80, true, 1.0);
-                //scene.beginAnimation(skeletons[0], 30, 60, true, 1.0);
-             	/*scene.registerBeforeRender(function () {
-					if(newMeshes[0].position.x > -6) {
-						newMeshes[0].position.x-= 0.05;
-					}
-				});*/
-            });                         
-        
-            // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-            var ground = BABYLON.Mesh.CreateGround("ground1", 60, 60, 2, scene);
+                player1 = newMeshes[0];
+                player1.position = new BABYLON.Vector3(100, 0, 35);
+		player2 = player1.clone("player2");
+		player2.skeleton = skeleton.clone("clonedSkeleton");  
+		player2.position = new BABYLON.Vector3(15, 0, 85);
+		player3 = player1.clone("player3");
+		player3.skeleton = skeleton.clone("clonedSkeleton");
+		player3.position = new BABYLON.Vector3(45, 0, 60);
+		/*action_list.push({id:0,type:'kick', mesh:player1, to:player2.position, when_over:[0], begin:[1,2], state:INIT});
+        action_list.push({id:1,type:'move', mesh:sphere, 
+                to:new BABYLON.Vector3(player2.position.x, -4.5, player2.position.z), when_over:[1,2], begin:[3], state:-1});
+        action_list.push({id:2,type:'run', mesh:player1, 
+                to:new BABYLON.Vector3(-15, 0, 20), when_over:[1,2], begin:[3], state:-1});
+        action_list.push({id:3,type:'kick', mesh:player2, 
+                to:new BABYLON.Vector3(-5, -4.5, 20), when_over:[], begin:[], state:-1});*/
+                action_list.push({id:0, type:'pass', mesh:player1, 
+                  to:new BABYLON.Vector3(18, 0, 100), f:30, beg:[1,2], state:INIT});
+                action_list.push({id:1, type:'run', mesh:player2, to:new BABYLON.Vector3(18, 0, 100), f:30, beg:[3],state:-1});
+                action_list.push({id:2, type:'run', mesh:player3, to:new BABYLON.Vector3(54, 0, 81), f:30, beg:[],state:-1});
+                action_list.push({id:3, type:'pass', mesh:player2, to:new BABYLON.Vector3(71, 0, 111), f:30, beg:[4],state:-1});
+                action_list.push({id:4, type:'run', mesh:player3, to:new BABYLON.Vector3(71, 0, 111), f:30, beg:[5],state:-1});
+                action_list.push({id:5, type:'cross', mesh:player3, to:new BABYLON.Vector3(-22, -4.5, 126), f:30, beg:[6],state:-1});
+                action_list.push({id:6, type:'run', mesh:player2, to:new BABYLON.Vector3(-22, 0, 126), f:30, beg:[7],state:-1});
+                action_list.push({id:7, type:'pass', mesh:player2, to:new BABYLON.Vector3(-3, 0, 150), f:30, beg:[],state:-1});
+            }); 
+            
+            var ground = BABYLON.Mesh.CreateGround("ground1", 80*upm, 60*upm, 2, scene);
             ground.material = material1;
             ground.position.y = -5;
             ground.rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
+            
+            scene.onPointerDown = function (evt, pickResult) {
+		//lookAt(box, pickResult.pickedPoint);
+		console.log(pickResult.pickedPoint);
+	    };
             
             return scene;
         
         };
         
-        function setPlyMoveanim(player_mesh) {
-            var animationPly = new BABYLON.Animation("player_move", "position.x", 30, 
-                                                      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-                                                      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+		/***
+	 	* tM = mesh to rotate.
+	 	* lAt = vector3(xyz) of target position to look at 
+	 	* (http://www.babylonjs-playground.com/#Q4LKP#2)
+	 	*/   
+		function lookAt(tM, lAt) {
+			lAt = lAt.subtract(tM.position);
+			tM.rotation.y = -Math.atan2(lAt.z, lAt.x) - Math.PI/2;
+		}        
         
-            //console.log("in setPlyMoveanim");
-            var keys = [];
-            keys.push({frame: 0,
-                       value: 1});
-            /*keys.push({frame: 15,
-                       value: 3});*/
-            keys.push({frame: 30,
-                       value: -6});
+        function isAllOver(w_o) {
+        
+        }
+        
+        function startAct(a_b) {
+          console.log(a_b);
+          for(var i=0;i<a_b.length;i++) {
+            console.log(action_list[a_b[i]].type);
+            if(action_list[a_b[i]].type == 'run') {
+              setPlyRun(action_list[a_b[i]], {start:0,end:30});
+            } else if(action_list[a_b[i]].type == 'move') {
+              mesh_move(action_list[a_b[i]], {start:0,end:30})
+            } else if(action_list[a_b[i]].type == 'pass') {
+              startPlyKick(action_list[a_b[i]]);
+            } else if(action_list[a_b[i]].type == 'cross') {
+              //console.log('in if cross');
+              startPlyCross(action_list[a_b[i]]);
+            }
+          }
+        }
+        
+        function mesh_move(act, frame, spline) {		
+	  var animationPly = new BABYLON.Animation("mash_move", "position", fps, 
+                                        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+                                        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+          var keys = [];
+          if(spline) {
+            keys.push({frame: frame.start, value: spline[0]});
+            keys.push({frame: 8, value: spline[1]});
+            keys.push({frame: 15, value: spline[2]});
+            keys.push({frame: 23, value: spline[3]});
+            keys.push({frame: frame.end, value: spline[4]});
+          } else {
+            keys.push({frame: frame.start, value: act.mesh.position});
+            keys.push({frame: frame.end, value: act.to});          
+          }
+          animationPly.setKeys(keys);
+          act.mesh.animations = [];
+          act.mesh.animations.push(animationPly);
+          scene.beginAnimation(act.mesh, 0, fps, false);
+          var event1 = new BABYLON.AnimationEvent(frame.end-1, 
+                            function(){
+                              console.log('over move');
+                              act.state = OVER;
+                            }, 
+                            true);
+          //console.log(trigger_action);
+          animationPly.addEvent(event1);          
+        }        
+        
+        function setPlyRun(act, frame) {
+          var animationPly = new BABYLON.Animation("", "position", fps, 
+                                                    BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+                                                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+          var keys = [];
+          keys.push({frame: frame.start,
+                       value: act.mesh.position});
+          keys.push({frame: frame.end,
+                       value: act.to});            
+          animationPly.setKeys(keys);
+          act.mesh.animations.push(animationPly);
+          lookAt(act.mesh, act.to)
+          scene.beginAnimation(act.mesh, 61, 80, false);                
+          var event1 = new BABYLON.AnimationEvent(frame.end-1, 
+                            function(){
+                              console.log('over run');
+                              act.state = OVER;
+                              startAct(act.beg);
+                            }, 
+                            true);
+          //console.log(trigger_action);
+          animationPly.addEvent(event1);
+        } 
+        
+		function startPlyKick(act) {
+          lookAt(act.mesh, act.to);
+          scene.beginAnimation(act.mesh.skeleton, 30, 60, false, 1.0, 
+             function(){
+               console.log('over kick');
+               act.state = OVER;
+               mesh_move({mesh:sphere, to:new BABYLON.Vector3(act.to.x,-4.5,act.to.z), state:-1}, {start:0,end:act.f});
+               //if isAllOver(act.when_over);
+                  startAct(act.beg);
+               //else
+               //  act.state = WAIT;
+               
+             });		
+		}         
+        
+        function startPlyCross(act) {
+          //console.log('in cross act.mesh');
+          lookAt(act.mesh, act.to);
+          scene.beginAnimation(act.mesh.skeleton, 30, 60, false, 1.0,
+            function(){
+              var destination = act.to;
+              var control = destination.subtract(sphere.position);
+              var bezier2;
+                    
+              control = control.scale(0.5);
+              control = sphere.position.add(control);
+              control.y = 40;
+              bezier2 = BABYLON.Curve3.CreateQuadraticBezier(sphere.position, control, destination, 4);
+              mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());
+              startAct(act.beg);
+            });
+        }
+        
+        function onKeyDown(evt) {
+          //console.log(evt.keyCode);
+          if(evt.keyCode == 83) {
+            //setPlyRun(action_list[0], {start:0,end:30});
+            var act_init = action_list.filter(function(act){return act.state == INIT});            
+            for(var i=0;i<act_init.length;i++) {
+              if(act_init[i].type == 'pass') {
+                startPlyKick(act_init[i]);
+              } else if(act_init[i].type == 'run') {
+                startPlyKick(act_init[i]);
+              } else if(act_init[i].type == 'cross') {
+                startPlyCross(act_init[i]);
+              }
+            }
+          }
+          /*if(evt.keyCode == 80) {
+            var destination = new BABYLON.Vector3(18, -4.5, 100);
+            var control = destination.subtract(sphere.position);
+            control = control.scale(0.5);
+            control = sphere.position.add(control);
+            control.y = 40;
+            //console.log(control);
+            //var control = new BABYLON.Vector3(56, 40, 62);            
+            var bezier2 = BABYLON.Curve3.CreateQuadraticBezier(sphere.position, control, destination, 4);
+            mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());            
             
-            animationPly.setKeys(keys);
-            player_mesh.animations.push(animationPly);
-            scene.beginAnimation(player_mesh, 0, 30, true);
-            
-            var event1 = new BABYLON.AnimationEvent(29, function() { console.log("Yeah!"); skel_anim.stop(); }, true);
-			animationPly.addEvent(event1);
+          }*/
         }
         
         var scene = createScene();
@@ -160,4 +281,5 @@
         });
     </script>
 </body>
-</html>
+</html>               
+
