@@ -49,22 +49,27 @@
 
         var createScene = function () {
         
-            window.addEventListener("keydown", onKeyDown);
+            //window.addEventListener("keydown", onKeyDown);
             
             var goal_offset_z = 28, goal_offset_y = -3.5;
             // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
         
             // This creates and positions a free camera (non-mesh)
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(35*upm, 40*upm, -50), scene);
-            //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 15, -50), scene);
+            //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(35*upm, 40*upm, -50), scene);
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(180, 40, 40), scene);
         
             // This targets the camera to scene origin
-            camera.setTarget(new BABYLON.Vector3(0*upm, 0, 20*upm)/*BABYLON.Vector3.Zero()*/);
+            camera.setTarget(new BABYLON.Vector3(88, 0, 100)/*BABYLON.Vector3.Zero()*/);
+            
+            //var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 0,  0, 10, BABYLON.Vector3.Zero(), scene);
+            //camera.setPosition(new BABYLON.Vector3(20, 30, 30));
         
             // This attaches the camera to the canvas
             camera.attachControl(canvas, true);
             
+            scene.activeCamera.beta +=  0.2;
+             scene.activeCamera.alpha -=  1.5;
             //camera.noRotationConstraint=true;
             //camera.rotation.z=Math.PI/180;
         
