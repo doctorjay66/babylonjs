@@ -7,9 +7,9 @@
 
         <title>Babylon.js sample code</title>
         <!-- Babylon.js -->
-        <script src="https://www.babylonjs.com/hand.minified-1.2.js"></script>
+        <!--<script src="https://www.babylonjs.com/hand.minified-1.2.js"></script>
         <script src="https://preview.babylonjs.com/cannon.js"></script>
-        <script src="https://preview.babylonjs.com/oimo.js"></script>
+        <script src="https://preview.babylonjs.com/oimo.js"></script>-->
         <script src="https://preview.babylonjs.com/babylon.js"></script>
         <style>
             html, body {
@@ -57,10 +57,10 @@
         
             // This creates and positions a free camera (non-mesh)
             //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(35*upm, 40*upm, -50), scene);
-            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(180, 40, 40), scene);
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(170, 40, 60), scene);
         
             // This targets the camera to scene origin
-            camera.setTarget(new BABYLON.Vector3(88, 0, 100)/*BABYLON.Vector3.Zero()*/);
+            camera.setTarget(new BABYLON.Vector3(88, 0, 90)/*BABYLON.Vector3.Zero()*/);
             
             //var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 0,  0, 10, BABYLON.Vector3.Zero(), scene);
             //camera.setPosition(new BABYLON.Vector3(20, 30, 30));
