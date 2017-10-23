@@ -11,6 +11,7 @@
         <script src="https://preview.babylonjs.com/cannon.js"></script>
         <script src="https://preview.babylonjs.com/oimo.js"></script>-->
         <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="lib/jquery-1.11.2.js"></script>
         <style>
             html, body {
                 overflow: hidden;
@@ -32,7 +33,8 @@
             #btnStart {
               position: absolute;
               left: 10px;
-               top: 15px;
+              top: 15px;
+              visibility: hidden;
             }
         </style>
     </head>
@@ -45,11 +47,67 @@
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
         var player1, skel_anim_k, player2, player3, sphere, upm = 4, fps = 30;
-        var action_list = [], act_idx, INIT = 0, WAIT = 1, OVER = 2;
+        var action_list = [], /*p_init_pos_list = [], p_init_pos,*/ 
+            act_idx, INIT = 0, WAIT = 1, OVER = 2;
 
-        var createScene = function () {
+        function str_to_point(str_p) {              
+              var point;
+
+              point = str_p.split(",");
+              point[0] = parseInt(point[0]);
+              point[1] = parseInt(point[1]);
+              point[2] = parseInt(point[2]);
+              return new BABYLON.Vector3(point[0], point[1], point[2]);       
+        }
         
-            //window.addEventListener("keydown", onKeyDown);
+        function setUpInitPos(m) {
+          /*var actions_url = "https://rawgit.com/doctorjay66/babylonjs/master/player_init_pos.jason";
+          player1 = m;
+          $.getJSON(actions_url, function(result){
+            $.each(result, function(i, field){ 
+              if(field.name == "player1") {
+                player1.position = str_to_point(field.pos);
+              }
+            });
+          });*/
+          
+        }
+        
+        function getActions(m, s) {
+          console.log("in get actions");
+          //setUpInitPos(m);
+          var actions_url = "https://rawgit.com/doctorjay66/babylonjs/master/actions.jason";
+          $.getJSON(actions_url, function(result){
+            $.each(result, function(i, field){
+              var act = {};
+              act['id'] = parseInt(field.id);
+              act['type'] = field.type;
+              if(field.ipos) {
+                if(field.mesh == "player1") {
+                  m.position = str_to_point(field.ipos);
+                  act['mesh'] = m; //getMeshesByTags(
+                  player1 = m;                
+                } else /*if(field.mesh == "player2")*/ {
+                  act['mesh'] = player1.clone(field.mesh);
+                  act['mesh'].skeleton = s.clone("clonedSkeleton");
+                  act['mesh'].position = str_to_point(field.ipos);
+                }
+              } else {
+                act['mesh'] = getMeshesByTags(field.mesh);
+              }
+              act['to'] = str_to_point(field.to);
+              act['f'] = field.f;
+              act['beg'] = field.beg.split(",");
+              act['state'] = field.state;                            
+              //scene = createScene();
+              action_list.push(act);
+              //console.log(act);
+            });
+            $('#btnStart').css('visibility', 'visible');
+          });
+        }
+        
+        var createScene = function () {        
             
             var goal_offset_z = 28, goal_offset_y = -3.5;
             // This creates a basic Babylon Scene object (non-mesh)
@@ -91,39 +149,25 @@
             sphere.position = new BABYLON.Vector3(100, -4.5, 35);
             //sphere.position.z = 0;
             
-            var skeleton;          
+            //var skeleton;          
             BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, 
               function (newMeshes, particleSystems, skeletons) {
                 // Set the target of the camera to the first imported mesh
                 camera.target = newMeshes[0];
-                skeleton = skeletons[0];                
+                //skeleton = skeletons[0];                
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
             	material2.diffuseColor = BABYLON.Color3.Blue();
-                newMeshes[0].material = material2;
-                player1 = newMeshes[0];
-                player1.position = new BABYLON.Vector3(100, 0, 35);
-		player2 = player1.clone("player2");
+                newMeshes[0].material = material2;                
+                getActions(newMeshes[0], skeletons[0]);
+                //player1 = newMeshes[0];
+                //console.log(p_init_pos_list[0].pos);
+                //player1.position = p_init_pos_list[0].pos; //new BABYLON.Vector3(100, 0, 35);
+		/*player2 = player1.clone("player2");
 		player2.skeleton = skeleton.clone("clonedSkeleton");  
 		player2.position = new BABYLON.Vector3(15, 0, 85);
 		player3 = player1.clone("player3");
 		player3.skeleton = skeleton.clone("clonedSkeleton");
-		player3.position = new BABYLON.Vector3(45, 0, 60);
-		/*action_list.push({id:0,type:'kick', mesh:player1, to:player2.position, when_over:[0], begin:[1,2], state:INIT});
-        action_list.push({id:1,type:'move', mesh:sphere, 
-                to:new BABYLON.Vector3(player2.position.x, -4.5, player2.position.z), when_over:[1,2], begin:[3], state:-1});
-        action_list.push({id:2,type:'run', mesh:player1, 
-                to:new BABYLON.Vector3(-15, 0, 20), when_over:[1,2], begin:[3], state:-1});
-        action_list.push({id:3,type:'kick', mesh:player2, 
-                to:new BABYLON.Vector3(-5, -4.5, 20), when_over:[], begin:[], state:-1});*/
-                action_list.push({id:0, type:'pass', mesh:player1, 
-                  to:new BABYLON.Vector3(18, 0, 100), f:30, beg:[1,2], state:INIT});
-                action_list.push({id:1, type:'run', mesh:player2, to:new BABYLON.Vector3(18, 0, 100), f:30, beg:[3],state:-1});
-                action_list.push({id:2, type:'run', mesh:player3, to:new BABYLON.Vector3(54, 0, 81), f:30, beg:[],state:-1});
-                action_list.push({id:3, type:'pass', mesh:player2, to:new BABYLON.Vector3(71, 0, 111), f:30, beg:[4],state:-1});
-                action_list.push({id:4, type:'run', mesh:player3, to:new BABYLON.Vector3(71, 0, 111), f:30, beg:[5],state:-1});
-                action_list.push({id:5, type:'cross', mesh:player3, to:new BABYLON.Vector3(-22, -4.5, 126), f:30, beg:[6],state:-1});
-                action_list.push({id:6, type:'run', mesh:player2, to:new BABYLON.Vector3(-22, 0, 126), f:30, beg:[7],state:-1});
-                action_list.push({id:7, type:'pass', mesh:player2, to:new BABYLON.Vector3(-3, 0, 150), f:30, beg:[],state:-1});
+		player3.position = new BABYLON.Vector3(45, 0, 60);*/
             }); 
             
             var ground = BABYLON.Mesh.CreateGround("ground1", 80*upm, 60*upm, 2, scene);
@@ -255,38 +299,10 @@
               mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());
               startAct(act.beg);
             });
-        }
-        
-        function onKeyDown(evt) {
-          //console.log(evt.keyCode);
-          if(evt.keyCode == 83) {
-            //setPlyRun(action_list[0], {start:0,end:30});
-            var act_init = action_list.filter(function(act){return act.state == INIT});            
-            for(var i=0;i<act_init.length;i++) {
-              if(act_init[i].type == 'pass') {
-                startPlyKick(act_init[i]);
-              } else if(act_init[i].type == 'run') {
-                startPlyKick(act_init[i]);
-              } else if(act_init[i].type == 'cross') {
-                startPlyCross(act_init[i]);
-              }
-            }
-          }
-          /*if(evt.keyCode == 80) {
-            var destination = new BABYLON.Vector3(18, -4.5, 100);
-            var control = destination.subtract(sphere.position);
-            control = control.scale(0.5);
-            control = sphere.position.add(control);
-            control.y = 40;
-            //console.log(control);
-            //var control = new BABYLON.Vector3(56, 40, 62);            
-            var bezier2 = BABYLON.Curve3.CreateQuadraticBezier(sphere.position, control, destination, 4);
-            mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());            
-            
-          }*/
-        }
+        }        
         
         function startActions() {
+            console.log(action_list);
             var act_init = action_list.filter(function(act){return act.state == INIT});            
             for(var i=0;i<act_init.length;i++) {
               if(act_init[i].type == 'pass') {
@@ -299,6 +315,7 @@
             }          
         }
         
+        //getActions();
         var scene = createScene();
 
         engine.runRenderLoop(function () {
