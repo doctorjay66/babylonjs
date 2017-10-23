@@ -1,3 +1,3 @@
-{"a0":{"id":0, "type":"pass", "mesh":"player1", "to":"18, 0, 100", "f":30, "beg":"[1,2]", "state":"INIT"},
-"a1":{"id":1, "type":"run", "mesh":"player2", "to":"18, 0, 100", "f":30, "beg":"[3]","state":-1},
-"a2":{"id":2, "type":"run", "mesh":"player3", "to":"54, 0, 81", "f":30, "beg":"[]","state":-1}}
+{"a0":{"id":0, "type":"pass", "mesh":"player1", "to":"18, 0, 100", "f":30, "beg":"1,2", "state":"INIT"},
+"a1":{"id":1, "type":"run", "mesh":"player2", "to":"18, 0, 100", "f":30, "beg":"3","state":-1},
+"a2":{"id":2, "type":"run", "mesh":"player3", "to":"54, 0, 81", "f":30, "beg":"","state":-1}}
