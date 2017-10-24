@@ -5,4 +5,7 @@
 "a1":{"id":1, "type":"run", "mesh":"player2", "to":"18,0,100", "f":30, "beg":"3","state":-1},
 "a2":{"id":2, "type":"run", "mesh":"player3", "to":"54,0,81", "f":30, "beg":"","state":-1},
 "a3":{"id":3, "type":"pass", "mesh":"player2", "to":"71,0,111", "f":30, "beg":"4","state":-1},
-"a4":{"id":4, "type":"run", "mesh":"player3", "to":"71,0,111", "f":30, "beg":"","state":-1}}
+"a4":{"id":4, "type":"run", "mesh":"player3", "to":"71,0,111", "f":30, "beg":"5","state":-1},
+"a5":{"id":5, "type":"cross", "mesh":"player3", "to":"-22,-4.5,126", "f":30, "beg":"6","state":-1},
+"a6":{"id":6, "type":"run", "mesh":"player2", "to":"-22,0,126", "f":30, "beg":"7","state":-1},
+"a7":{"id":7, "type":"pass", "mesh":"player2", "to":"-3,0,150", "f":30, "beg":"","state":-1}}
