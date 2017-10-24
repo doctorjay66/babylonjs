@@ -33,8 +33,7 @@
             #btnStart {
               position: absolute;
               left: 10px;
-              top: 15px;
-              visibility: hidden;
+               top: 15px;
             }
         </style>
     </head>
@@ -49,10 +48,9 @@
         var player1, skel_anim_k, player2, player3, sphere, upm = 4, fps = 30;
         var action_list = [], /*p_init_pos_list = [], p_init_pos,*/ 
             act_idx, INIT = 0, WAIT = 1, OVER = 2;
-
+            
         function str_to_point(str_p) {              
               var point;
-
               point = str_p.split(",");
               point[0] = parseInt(point[0]);
               point[1] = parseInt(point[1]);
@@ -77,30 +75,38 @@
           console.log("in get actions");
           //setUpInitPos(m);
           var actions_url = "https://rawgit.com/doctorjay66/babylonjs/master/actions.jason";
+          //var actions_url = "http://localhost/Babylon.js-master/myprg/basic_player/actions.jason";
+          //var actions_url = "http://localhost:8000/basic_player/actions.jason";
+          var p_mesh = {};
           $.getJSON(actions_url, function(result){
+            console.log(result);
             $.each(result, function(i, field){
               var act = {};
-              act['id'] = parseInt(field.id);
-              act['type'] = field.type;
-              if(field.ipos) {
+              if(field.id == -1) {
                 if(field.mesh == "player1") {
-                  m.position = str_to_point(field.ipos);
-                  act['mesh'] = m; //getMeshesByTags(
-                  player1 = m;                
+                  m.position = str_to_point(field.to);                  
+                  player1 = m; p_mesh['player1'] = m;
                 } else /*if(field.mesh == "player2")*/ {
-                  act['mesh'] = player1.clone(field.mesh);
-                  act['mesh'].skeleton = s.clone("clonedSkeleton");
-                  act['mesh'].position = str_to_point(field.ipos);
+                  p_mesh[field.mesh] = player1.clone(field.mesh);
+                  //console.log(p_mesh);
+                  p_mesh[field.mesh].skeleton = s.clone("clonedSkeleton");
+                  p_mesh[field.mesh].position = str_to_point(field.to);
                 }
               } else {
-                act['mesh'] = getMeshesByTags(field.mesh);
+                act['id'] = parseInt(field.id);
+                act['type'] = field.type;
+                act['mesh'] = p_mesh[field.mesh]; //scene.getMeshesByTags(field.mesh);
+                act['to'] = str_to_point(field.to);
+                act['f'] = field.f;
+                act['beg'] = field.beg.split(",");
+                if(act['beg'] == "") {act['beg'] = [];}
+                act['state'] = field.state;
+                //console.log(p_mesh);
+                action_list.push(act);
               }
-              act['to'] = str_to_point(field.to);
-              act['f'] = field.f;
-              act['beg'] = field.beg.split(",");
-              act['state'] = field.state;                            
+                           
               //scene = createScene();
-              action_list.push(act);
+              
               //console.log(act);
             });
             $('#btnStart').css('visibility', 'visible');
@@ -158,7 +164,7 @@
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
             	material2.diffuseColor = BABYLON.Color3.Blue();
                 newMeshes[0].material = material2;                
-                getActions(newMeshes[0], skeletons[0]);
+                getActions(newMeshes[0], skeletons[0]);                
                 //player1 = newMeshes[0];
                 //console.log(p_init_pos_list[0].pos);
                 //player1.position = p_init_pos_list[0].pos; //new BABYLON.Vector3(100, 0, 35);
@@ -190,7 +196,9 @@
 	 	* (http://www.babylonjs-playground.com/#Q4LKP#2)
 	 	*/   
 		function lookAt(tM, lAt) {
+			//console.log(tM);
 			lAt = lAt.subtract(tM.position);
+			//console.log(lAt);
 			tM.rotation.y = -Math.atan2(lAt.z, lAt.x) - Math.PI/2;
 		}        
         
@@ -201,6 +209,7 @@
         function startAct(a_b) {
           console.log(a_b);
           for(var i=0;i<a_b.length;i++) {
+            console.log(i, a_b[i]);
             console.log(action_list[a_b[i]].type);
             if(action_list[a_b[i]].type == 'run') {
               setPlyRun(action_list[a_b[i]], {start:0,end:30});
@@ -269,6 +278,7 @@
         } 
         
 		function startPlyKick(act) {
+		  //console.log(act.mesh);
           lookAt(act.mesh, act.to);
           scene.beginAnimation(act.mesh.skeleton, 30, 60, false, 1.0, 
              function(){
@@ -302,8 +312,9 @@
         }        
         
         function startActions() {
-            console.log(action_list);
-            var act_init = action_list.filter(function(act){return act.state == INIT});            
+            //console.log(action_list);
+            var act_init = action_list.filter(function(act){return act.state == INIT});
+            //console.log(act_init);
             for(var i=0;i<act_init.length;i++) {
               if(act_init[i].type == 'pass') {
                 startPlyKick(act_init[i]);
@@ -317,16 +328,14 @@
         
         //getActions();
         var scene = createScene();
-
         engine.runRenderLoop(function () {
             scene.render();
         });
-
         // Resize
         window.addEventListener("resize", function () {
             engine.resize();
         });
     </script>
-</body>
+  </body>
 </html>               
 
