@@ -1,3 +1,8 @@
-{"a0":{"id":0, "type":"pass", "mesh":"player1", "to":"18,0,100", "f":30, "beg":"1,2", "state":0, "ipos":"100,0,35"},
-"a1":{"id":1, "type":"run", "mesh":"player2", "to":"18,0,100", "f":30, "beg":"3","state":-1, "ipos":"15,0,85"},
-"a2":{"id":2, "type":"run", "mesh":"player3", "to":"54,0,81", "f":30, "beg":"","state":-1, "ipos":"45,0,60"}}
+{"p0":{"id":-1, "type":"", "mesh":"player1", "to":"100,0,35", "f":-1, "beg":"", "state":"MAIN"},
+"p1":{"id":-1, "type":"", "mesh":"player2", "to":"15,0,85", "f":-1, "beg":"", "state":"CLONE"},
+"p2":{"id":-1, "type":"", "mesh":"player3", "to":"45, 0, 60", "f":-1, "beg":"", "state":"CLONE"},
+"a0":{"id":0, "type":"pass", "mesh":"player1", "to":"18,0,100", "f":30, "beg":"1,2", "state":0},
+"a1":{"id":1, "type":"run", "mesh":"player2", "to":"18,0,100", "f":30, "beg":"3","state":-1},
+"a2":{"id":2, "type":"run", "mesh":"player3", "to":"54,0,81", "f":30, "beg":"","state":-1},
+"a3":{"id":3, "type":"pass", "mesh":"player2", "to":"71,0,111", "f":30, "beg":"4","state":-1},
+"a4":{"id":4, "type":"run", "mesh":"player3", "to":"71,0,111", "f":30, "beg":"","state":-1}}
