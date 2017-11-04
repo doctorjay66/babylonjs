@@ -12,6 +12,7 @@
         <script src="https://preview.babylonjs.com/oimo.js"></script>-->
         <script src="https://preview.babylonjs.com/babylon.js"></script>
         <script src="lib/jquery-1.11.2.js"></script>
+        <script src="lib/digi_rep01.js"></script>
         <style>
             html, body {
                 overflow: hidden;
@@ -30,89 +31,30 @@
                 touch-action: none;
             }
             
-            #btnStart {
+            .btnStart {
               position: absolute;
               left: 10px;
-               top: 15px;
+              top: 15px;
+              visibility: hidden;
             }
         </style>
     </head>
 <body>
-    <input type="button" id="btnStart" value="Start" onclick="startActions();" />
+    <div class="btnStart">
+    </div>
     <div id="canvasZone">
         <canvas id="renderCanvas"></canvas>
     </div>
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
+        var scene;
         var player1, skel_anim_k, player2, player3, sphere, upm = 4, fps = 30;
-        var action_list = [], /*p_init_pos_list = [], p_init_pos,*/ 
+        var action_lists = [], a_l_o = {};
+        var skeleton, p_mesh = {}, act_to_start = 'act 1';
+        var action_list = [], act_init, /*p_init_pos_list = [], p_init_pos,*/ 
             act_idx, INIT = 0, WAIT = 1, OVER = 2;
-            
-        function str_to_point(str_p) {              
-              var point;
-              point = str_p.split(",");
-              point[0] = parseInt(point[0]);
-              point[1] = parseInt(point[1]);
-              point[2] = parseInt(point[2]);
-              return new BABYLON.Vector3(point[0], point[1], point[2]);       
-        }
-        
-        function setUpInitPos(m) {
-          /*var actions_url = "https://rawgit.com/doctorjay66/babylonjs/master/player_init_pos.jason";
-          player1 = m;
-          $.getJSON(actions_url, function(result){
-            $.each(result, function(i, field){ 
-              if(field.name == "player1") {
-                player1.position = str_to_point(field.pos);
-              }
-            });
-          });*/
-          
-        }
-        
-        function getActions(m, s) {
-          console.log("in get actions");
-          //setUpInitPos(m);
-          var actions_url = "https://rawgit.com/doctorjay66/babylonjs/master/actions.jason";
-          //var actions_url = "http://localhost/Babylon.js-master/myprg/basic_player/actions.jason";
-          //var actions_url = "http://localhost:8000/basic_player/actions.jason";
-          var p_mesh = {};
-          $.getJSON(actions_url, function(result){
-            console.log(result);
-            $.each(result, function(i, field){
-              var act = {};
-              if(field.id == -1) {
-                if(field.mesh == "player1") {
-                  m.position = str_to_point(field.to);                  
-                  player1 = m; p_mesh['player1'] = m;
-                } else /*if(field.mesh == "player2")*/ {
-                  p_mesh[field.mesh] = player1.clone(field.mesh);
-                  //console.log(p_mesh);
-                  p_mesh[field.mesh].skeleton = s.clone("clonedSkeleton");
-                  p_mesh[field.mesh].position = str_to_point(field.to);
-                }
-              } else {
-                act['id'] = parseInt(field.id);
-                act['type'] = field.type;
-                act['mesh'] = p_mesh[field.mesh]; //scene.getMeshesByTags(field.mesh);
-                act['to'] = str_to_point(field.to);
-                act['f'] = field.f;
-                act['beg'] = field.beg.split(",");
-                if(act['beg'] == "") {act['beg'] = [];}
-                act['state'] = field.state;
-                //console.log(p_mesh);
-                action_list.push(act);
-              }
-                           
-              //scene = createScene();
-              
-              //console.log(act);
-            });
-            $('#btnStart').css('visibility', 'visible');
-          });
-        }
-        
+                
         var createScene = function () {        
             
             var goal_offset_z = 28, goal_offset_y = -3.5;
@@ -152,190 +94,46 @@
             sphere = BABYLON.Mesh.CreateSphere("sphere1", 10, 1, scene);
         
             // Move the sphere upward 1/2 its height
-            sphere.position = new BABYLON.Vector3(100, -4.5, 35);
-            //sphere.position.z = 0;
+            //sphere.position = new BABYLON.Vector3(100, -4.5, 35);
+            sphere.position.y = -4.5;
             
-            //var skeleton;          
-            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_new.babylon", scene, 
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action.babylon", scene,
               function (newMeshes, particleSystems, skeletons) {
-                // Set the target of the camera to the first imported mesh
-                camera.target = newMeshes[0];
-                //skeleton = skeletons[0];                
+                skeleton = skeletons[0];                
                 var material2 = new BABYLON.StandardMaterial("material2",scene);
-            	material2.diffuseColor = BABYLON.Color3.Blue();
-                newMeshes[0].material = material2;                
-                getActions(newMeshes[0], skeletons[0]);                
-                //player1 = newMeshes[0];
-                //console.log(p_init_pos_list[0].pos);
-                //player1.position = p_init_pos_list[0].pos; //new BABYLON.Vector3(100, 0, 35);
-		/*player2 = player1.clone("player2");
-		player2.skeleton = skeleton.clone("clonedSkeleton");  
-		player2.position = new BABYLON.Vector3(15, 0, 85);
-		player3 = player1.clone("player3");
-		player3.skeleton = skeleton.clone("clonedSkeleton");
-		player3.position = new BABYLON.Vector3(45, 0, 60);*/
-            }); 
+            	//material2.diffuseColor = BABYLON.Color3.Blue();
+            	material2.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text01.png", scene);
+                newMeshes[0].material = material2;                               
+                player1 = newMeshes[0];
+                player1.visibility = false;
+                console.log(player1.name);
+                //if($.isEmptyObject(a_l_o)) {
+                  getActions(/*newMeshes[0], skeletons[0]*/); //sincronizza importMesh con $.getJSON
+                //}
+            });
             
             var ground = BABYLON.Mesh.CreateGround("ground1", 80*upm, 60*upm, 2, scene);
             ground.material = material1;
             ground.position.y = -5;
-            ground.rotation = new BABYLON.Vector3(0, Math.PI/2, 0);
-            
+            ground.rotation = new BABYLON.Vector3(0, Math.PI/2, 0);            
+
             scene.onPointerDown = function (evt, pickResult) {
 		//lookAt(box, pickResult.pickedPoint);
 		console.log(pickResult.pickedPoint);
 	    };
-            
+	    
             return scene;
-        
         };
         
-		/***
-	 	* tM = mesh to rotate.
-	 	* lAt = vector3(xyz) of target position to look at 
-	 	* (http://www.babylonjs-playground.com/#Q4LKP#2)
-	 	*/   
-		function lookAt(tM, lAt) {
-			//console.log(tM);
-			lAt = lAt.subtract(tM.position);
-			//console.log(lAt);
-			tM.rotation.y = -Math.atan2(lAt.z, lAt.x) - Math.PI/2;
-		}        
-        
-        function isAllOver(w_o) {
-        
-        }
-        
-        function startAct(a_b) {
-          console.log(a_b);
-          for(var i=0;i<a_b.length;i++) {
-            console.log(i, a_b[i]);
-            console.log(action_list[a_b[i]].type);
-            if(action_list[a_b[i]].type == 'run') {
-              setPlyRun(action_list[a_b[i]], {start:0,end:30});
-            } else if(action_list[a_b[i]].type == 'move') {
-              mesh_move(action_list[a_b[i]], {start:0,end:30})
-            } else if(action_list[a_b[i]].type == 'pass') {
-              startPlyKick(action_list[a_b[i]]);
-            } else if(action_list[a_b[i]].type == 'cross') {
-              //console.log('in if cross');
-              startPlyCross(action_list[a_b[i]]);
-            }
-          }
-        }
-        
-        function mesh_move(act, frame, spline) {		
-	  var animationPly = new BABYLON.Animation("mash_move", "position", fps, 
-                                        BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-                                        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-          var keys = [];
-          if(spline) {
-            keys.push({frame: frame.start, value: spline[0]});
-            keys.push({frame: 8, value: spline[1]});
-            keys.push({frame: 15, value: spline[2]});
-            keys.push({frame: 23, value: spline[3]});
-            keys.push({frame: frame.end, value: spline[4]});
-          } else {
-            keys.push({frame: frame.start, value: act.mesh.position});
-            keys.push({frame: frame.end, value: act.to});          
-          }
-          animationPly.setKeys(keys);
-          act.mesh.animations = [];
-          act.mesh.animations.push(animationPly);
-          scene.beginAnimation(act.mesh, 0, fps, false);
-          var event1 = new BABYLON.AnimationEvent(frame.end-1, 
-                            function(){
-                              console.log('over move');
-                              act.state = OVER;
-                            }, 
-                            true);
-          //console.log(trigger_action);
-          animationPly.addEvent(event1);          
-        }        
-        
-        function setPlyRun(act, frame) {
-          var animationPly = new BABYLON.Animation("", "position", fps, 
-                                                    BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-                                                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-          var keys = [];
-          keys.push({frame: frame.start,
-                       value: act.mesh.position});
-          keys.push({frame: frame.end,
-                       value: act.to});            
-          animationPly.setKeys(keys);
-          act.mesh.animations.push(animationPly);
-          lookAt(act.mesh, act.to)
-          scene.beginAnimation(act.mesh, 61, 80, false);                
-          var event1 = new BABYLON.AnimationEvent(frame.end-1, 
-                            function(){
-                              console.log('over run');
-                              act.state = OVER;
-                              startAct(act.beg);
-                            }, 
-                            true);
-          //console.log(trigger_action);
-          animationPly.addEvent(event1);
-        } 
-        
-		function startPlyKick(act) {
-		  //console.log(act.mesh);
-          lookAt(act.mesh, act.to);
-          scene.beginAnimation(act.mesh.skeleton, 30, 60, false, 1.0, 
-             function(){
-               console.log('over kick');
-               act.state = OVER;
-               mesh_move({mesh:sphere, to:new BABYLON.Vector3(act.to.x,-4.5,act.to.z), state:-1}, {start:0,end:act.f});
-               //if isAllOver(act.when_over);
-                  startAct(act.beg);
-               //else
-               //  act.state = WAIT;
-               
-             });		
-		}         
-        
-        function startPlyCross(act) {
-          //console.log('in cross act.mesh');
-          lookAt(act.mesh, act.to);
-          scene.beginAnimation(act.mesh.skeleton, 30, 60, false, 1.0,
-            function(){
-              var destination = act.to;
-              var control = destination.subtract(sphere.position);
-              var bezier2;
-                    
-              control = control.scale(0.5);
-              control = sphere.position.add(control);
-              control.y = 40;
-              bezier2 = BABYLON.Curve3.CreateQuadraticBezier(sphere.position, control, destination, 4);
-              mesh_move({mesh:sphere, to:null, state:-1}, {start:0,end:30}, bezier2.getPoints());
-              startAct(act.beg);
-            });
-        }        
-        
-        function startActions() {
-            //console.log(action_list);
-            var act_init = action_list.filter(function(act){return act.state == INIT});
-            //console.log(act_init);
-            for(var i=0;i<act_init.length;i++) {
-              if(act_init[i].type == 'pass') {
-                startPlyKick(act_init[i]);
-              } else if(act_init[i].type == 'run') {
-                startPlyKick(act_init[i]);
-              } else if(act_init[i].type == 'cross') {
-                startPlyCross(act_init[i]);
-              }
-            }          
-        }
-        
-        //getActions();
-        var scene = createScene();
+        scene = createScene();
         engine.runRenderLoop(function () {
             scene.render();
         });
         // Resize
         window.addEventListener("resize", function () {
             engine.resize();
-        });
+        });        
+                
     </script>
   </body>
-</html>               
-
+</html> 
