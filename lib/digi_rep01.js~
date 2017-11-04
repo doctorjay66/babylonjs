@@ -47,7 +47,7 @@ function setPos(ad) {
     }
   });
   
-  console.log(p_mesh);
+  //console.log(p_mesh);
   obj_pos.forEach(function(val) {    
     if(val.mesh == "player1") {
       player1.visibility = true;
@@ -95,10 +95,10 @@ function setActions(ad) {
     val.mesh = p_mesh[val.mesh];
     val.to = str_to_point(val.to);
     val.beg = val.beg.split(",");
-    console.log('beg', val.id, val.beg);
+    //console.log('beg', val.id, val.beg);
     if(val.beg == "") {val.beg = [];}
   });
-  console.log(action_list);
+  //console.log(action_list);
 }
 
 /***
@@ -113,10 +113,10 @@ function lookAt(tM, lAt) {
 }  
 
 function startAct(a_b) {
-          console.log('start act',a_b);
+          //console.log('start act',a_b);
           for(var i=0;i<a_b.length;i++) {
-            console.log(i, a_b[i]);
-            console.log(action_list[a_b[i]-1].type);
+            //console.log(i, a_b[i]);
+            //console.log(action_list[a_b[i]-1].type);
             if(action_list[a_b[i]-1].type == 'run') {
               setPlyRun(action_list[a_b[i]-1], {start:0,end:30});
             } else if(action_list[a_b[i]-1].type == 'move') {
@@ -151,7 +151,7 @@ function mesh_move(act, frame, spline) {
           scene.beginAnimation(act.mesh, 0, fps, false);
           var event1 = new BABYLON.AnimationEvent(frame.end, 
                             function(){
-                              console.log('over move');
+                              //console.log('over move');
                               act.state = OVER;
                             }, 
                             true);
@@ -160,7 +160,7 @@ function mesh_move(act, frame, spline) {
 } 
 
 function startPlyCross(act) {
-          console.log(act);
+          //console.log(act);
           lookAt(act.mesh, act.to);
           scene.beginAnimation(act.mesh.skeleton, 30, 50, false, 1.0,
             function(){
@@ -182,7 +182,7 @@ function startPlyKick(act) {
   lookAt(act.mesh, act.to);
   scene.beginAnimation(act.mesh.skeleton, 30, 50, false, 1.0, 
   function(){
-    console.log('over kick');
+    //console.log('over kick');
     act.state = OVER;
     mesh_move({mesh:sphere, to:new BABYLON.Vector3(act.to.x,-4.5,act.to.z), state:-1}, {start:0,end:act.f});
               //if isAllOver(act.when_over);
@@ -205,10 +205,10 @@ function setPlyRun(act, frame) {
           act.mesh.animations.push(animationPly);
           lookAt(act.mesh, act.to)
           scene.beginAnimation(act.mesh, 0, fps, false);
-  scene.beginAnimation(act.mesh.skeleton, /*61, 80,*/1, 20, false,  1.0, function(){console.log(act.id + 'over run');});
+  scene.beginAnimation(act.mesh.skeleton, /*61, 80,*/1, 20, false,  1.0, function(){/*console.log(act.id + 'over run');*/});
   var event1 = new BABYLON.AnimationEvent(frame.end, 
                             function(){
-                              console.log(act.id + 'over run');
+                              //console.log(act.id + 'over run');
                               act.state = OVER;
                               startAct(act.beg);
                             }, 
@@ -239,6 +239,6 @@ function startActions(ad) {
       startPlyCross(act_init[i]);
     }*/
   }
-  console.log(ad);
+  //console.log(ad);
   //console.log(action_list);
 }
